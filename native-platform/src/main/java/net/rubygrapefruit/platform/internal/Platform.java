@@ -173,7 +173,11 @@ public abstract class Platform {
                 return type.cast(new WindowsTerminals());
             }
             if (type.equals(ProcessLauncher.class)) {
-                return type.cast(new WrapperProcessLauncher(new WindowsProcessLauncher(new DefaultProcessLauncher())));
+                if (isJava9OrAbove()) {
+                    return type.cast(new WrapperProcessLauncher(new DefaultProcessLauncher()));
+                } else {
+                    return type.cast(new WrapperProcessLauncher(new WindowsProcessLauncher(new DefaultProcessLauncher())));
+                }
             }
             if (type.equals(SystemInfo.class)) {
                 return type.cast(new DefaultSystemInfo());
@@ -384,6 +388,22 @@ public abstract class Platform {
         @Override
         public String getId() {
             return "osx-aarch64";
+        }
+    }
+
+    private static boolean isJava9OrAbove() {
+        String version = System.getProperty("java.specification.version");
+        if (version == null) {
+            return false;
+        }
+        if (version.startsWith("1.")) {
+            return false;
+        }
+        try {
+            int major = Integer.parseInt(version.split("\\.")[0]);
+            return major >= 9;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 
