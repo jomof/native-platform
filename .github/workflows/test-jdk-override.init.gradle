@@ -1,0 +1,13 @@
+def currentJavaVersion = System.getProperty("java.specification.version")
+if (currentJavaVersion.startsWith("1.")) {
+    currentJavaVersion = currentJavaVersion.substring(2)
+}
+def targetVersion = JavaLanguageVersion.of(currentJavaVersion)
+
+allprojects {
+    tasks.withType(Test) {
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(targetVersion)
+        })
+    }
+}
